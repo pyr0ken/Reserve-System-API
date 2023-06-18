@@ -13,21 +13,10 @@ class User(AbstractBaseUser):
         max_length=100,
         unique=True,
     )
-    email_active_code = models.CharField(
-        max_length=100,
-        unique=True,
-        # null=True,
-        # blank=True,
-    )
-    avatar = models.ImageField(
-        upload_to="media/profile-images/",
-        null=True,
-        blank=True
-    )
 
     objects = UserManager()
 
-    USERNAME_FIELD = ['email']
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
     # required fileds
@@ -39,7 +28,7 @@ class User(AbstractBaseUser):
     is_superuser = models.BooleanField(default=False)
 
     class Meta:
-        db_table = "accunts"
+        db_table = "ReserveSystem_accounts"
         # verbose_name = 'account'
         # verbose_popular_name = "accounts"
 
@@ -47,7 +36,7 @@ class User(AbstractBaseUser):
         return f'{self.first_name} {self.last_name}'
 
     def __str__(self) -> str:
-        return self.get_fullename
+        return 'fuck'
     
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"
@@ -59,8 +48,8 @@ class User(AbstractBaseUser):
         # Simplest possible answer: Yes, always
         return True
 
-    @property
-    def is_staff(self):
-        "Is the user a member of staff?"
-        # Simplest possible answer: All admins are staff
-        return self.is_admin
+    # @property
+    # def is_staff(self):
+    #     "Is the user a member of staff?"
+    #     # Simplest possible answer: All admins are staff
+    #     return self.is_admin

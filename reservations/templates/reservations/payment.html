@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load jalali_tags %}
+{% load custom_field_lookups %}
+
+{% block header_refrences %}
+    <style>
+        body {
+            background-color: #0009;
+            color: #fff;
+            text-align: center;
+        }
+
+        table {
+            margin: auto;
+            font-family: Vazirmatn, sans-sarif;
+        }
+
+        th, td {
+            border: 1px solid #000;
+            padding: 2rem;
+        }
+
+        .reserve-btn {
+            padding: 20px;
+            background: #0005;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: .2s;
+            cursor: pointer;
+            border: 0;
+            font-size: 1.3rem;
+        }
+
+        .reserve-btn:hover {
+            background-color: #000;
+        }
+
+        .increase {
+            display: inline-block;
+            border-radius: 20px;
+            background-color: green;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .decrease {
+            display: inline-block;
+            border-radius: 20px;
+            background-color: red;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+    </style>
+
+{% endblock %}
+
+{% block title %}
+    Reserve Tabel
+{% endblock %}
+
+{% block content %}
+    <table>
+        <thead>
+        <tr>
+            <th>هفته</th>
+            <th>تاریخ</th>
+            <th>روز هفته</th>
+            <th>زمان</th>
+            <th>تعداد جلسات</th>
+            <th>قیمت</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>{{ week_number }}</td>
+            <td>{{ date|to_jalali }}</td>
+            <td>{{ date|get_parsian_weekday }}</td>
+            <td>{{ time|time:"H:i" }}</td>
+            <td>
+                <span class="increase" onclick="IncreaseBtn()"> increase </span>
+                <input class="reserve-add" type="number" value="1" min="1">
+                <span class="decrease" onclick="DecreaseBtn()"> decrease </span>
+            </td>
+            <td>{{ price|three_digits_currency }}</td>
+        </tr>
+        </tbody>
+    </table>
+    <br>
+    <button class="reserve-btn" onclick="ReserveBtn()">RESERVE</button>
+{% endblock %}
+
+{% block footer_refrences %}
+    <script>
+        function IncreaseBtn() {
+            const reserve_add = $(".reserve-add")
+            let reserve_number = parseInt(reserve_add.val());
+            reserve_number += 1;
+            reserve_add.val(reserve_number);
+        }
+
+        function DecreaseBtn() {
+            const reserve_add = $(".reserve-add")
+            let reserve_number = parseInt(reserve_add.val());
+            if (reserve_number > 1) {
+                reserve_number -= 1;
+                reserve_add.val(reserve_number);
+            }
+        }
+
+        function ReserveBtn() {
+            const url = '/table/payment/'
+            const data = {
+                date: '{{ date|date:"Y-m-d" }}',
+                time: '{{ time|time:"H:i" }}',
+                price: '{{ price }}',
+                week: '{{ week_number }}',
+            }
+            $.ajax({
+                type: 'POST',
+                url: url,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                data: data,
+                success: function (data) {
+                    console.log(data.message);
+                },
+                error: function (error) {
+                    console.error(error);
+                }
+            });
+        }
+    </script>
+{% endblock %}
