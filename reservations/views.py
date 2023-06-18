@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
@@ -10,6 +11,7 @@ from datetime import timedelta
 from extensions.Timestap import TimeStap
 from .models import SonsTimes
 from .serializers import SonsTimeSerializers
+from .zarinpal import payment_request, payment_verification, ZarinpalError
 
 
 class ReservationsAPIView(APIView):
@@ -77,10 +79,10 @@ class ReservationsView(View):
     def get(self, request: HttpRequest, week_number: int):
         sons_times = SonsTimes.objects.all()
         week_date_list = self.shamsi.get_week_date_list(week_number)
-        now_time = self.shamsi.now().time()
+        now = self.shamsi.now()
 
         context = {
-            'now_time': now_time,
+            'now': now,
             'week_number': week_number,
             'week_date': week_date_list,
             'sons_times': sons_times,
@@ -89,7 +91,7 @@ class ReservationsView(View):
         return render(request, self.template_name, context)
 
 
-class PaymentView(View):
+class PaymentView(LoginRequiredMixin, View):
     template_name = 'reservations/payment.html'
     shamsi = TimeStap()
 
@@ -128,10 +130,21 @@ class PaymentView(View):
         formatted_date, formatted_time, formatted_price, formatted_week_number = is_valid_reservation(week_number, date,
                                                                                                       time, price)
 
-        print("==POST=="*90)
+        print("==POST==" * 90)
         print(formatted_date, type(formatted_date))
         print(formatted_time, type(formatted_time))
         print(formatted_price, type(formatted_price))
         print(formatted_week_number, type(formatted_week_number))
 
-        return redirect(reverse('reservations:table', args=[formatted_week_number]))
+        amount: int = formatted_price * 10  # Convert to Rial
+        description: str = "Thanks You !"
+        email: str = request.user.email
+
+        redirect_url = payment_request(amount, description, email)
+
+        return HttpResponse(redirect_url)
+
+
+class PaymentVerifyView(LoginRequiredMixin, View):
+    def get(self, request):
+        pass

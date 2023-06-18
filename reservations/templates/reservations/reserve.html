@@ -54,7 +54,7 @@
                 </th>
                 {% for date in week_date %}
                     <td>
-                        {% if sons_time.time < now_time %}
+                        {% if sons_time.time < now.time and date == now.date %}
                             fuck
                         {% else %}
                             <p class="send"

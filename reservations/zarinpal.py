@@ -1,40 +1,40 @@
 """
     Zarin-pal config
 """
-from django.conf import settings
-from django.shortcuts import redirect
+# from django.conf import settings
 from suds.client import Client
 
-if settings.SANDBOX:
-    sandbox = 'sandbox'
-else:
-    sandbox = 'www'
+# if settings.SANDBOX:
+#     sandbox = 'sandbox'
+# else:
+#     sandbox = 'www'
 
-ZP_API_STARTPAY = f"https://{sandbox}.zarinpal.com/pg/StartPay/"
-ZARINPAL_WEBSERVICE = f'https://{sandbox}.zarinpal.com/pg/services/WebGate/wsdl'  # Required
-CallbackURL = 'http://127.0.0.1:8000/order/verify/'  # TODO: Important: need to edit for really server.
+# TODO: Important: need to edit for really server.
+ZP_API_STARTPAY = f"https://sandbox.zarinpal.com/pg/StartPay/"
+ZARINPAL_WEBSERVICE = f'https://sandbox.zarinpal.com/pg/services/WebGate/wsdl'
+CallbackURL = 'http://127.0.0.1:8000/table/payment/verify/'
+MERCHANT = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 
 
-def payment_request(amount: int, description: str, order,
+def payment_request(amount: int, description: str,
                     email: str = None, mobile: str = None) -> str:
     client = Client(ZARINPAL_WEBSERVICE)
-    result = client.service.PaymentRequest(settings.MERCHANT,
+    result = client.service.PaymentRequest(MERCHANT,
                                            amount,
                                            description,
                                            email,
                                            mobile,
                                            CallbackURL)
     if result.Status == 100:
-        order.authority = result.Authority
-        order.save()
-        return ZP_API_STARTPAY + str(order.authority)
+        authority = result.Authority
+        return ZP_API_STARTPAY + str(authority)
     else:
         return error_generator(result.Status)
 
 
 def payment_verification(amount: int, authority: str) -> tuple:
     client = Client(ZARINPAL_WEBSERVICE)
-    result = client.service.PaymentVerification(settings.MERCHANT,
+    result = client.service.PaymentVerification(MERCHANT,
                                                 authority,
                                                 amount)
 

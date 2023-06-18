@@ -36,7 +36,7 @@ class User(AbstractBaseUser):
         return f'{self.first_name} {self.last_name}'
 
     def __str__(self) -> str:
-        return 'fuck'
+        return self.get_fullname()
     
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"
