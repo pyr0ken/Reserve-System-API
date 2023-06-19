@@ -20,7 +20,7 @@
             padding: 2rem;
         }
 
-        #reserve-btn {
+        .reserve-btn {
             padding: 20px;
             background: #0005;
             color: #fff;
@@ -32,7 +32,7 @@
             font-size: 1.3rem;
         }
 
-        #reserve-btn:hover {
+        .reserve-btn:hover {
             background-color: #000;
         }
 
@@ -52,25 +52,6 @@
             cursor: pointer;
         }
 
-        .loader {
-            border: 6px solid #f3f3f3;
-            border-top: 6px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            margin: 5px auto;
-            animation: spin 2s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
     </style>
 
 {% endblock %}
@@ -83,7 +64,6 @@
     <table>
         <thead>
         <tr>
-            <th>هفته</th>
             <th>تاریخ</th>
             <th>روز هفته</th>
             <th>زمان</th>
@@ -93,7 +73,6 @@
         </thead>
         <tbody>
         <tr>
-            <td>{{ week_number }}</td>
             <td>{{ date|to_jalali }}</td>
             <td>{{ date|get_parsian_weekday }}</td>
             <td>{{ time|time:"H:i" }}</td>
@@ -107,7 +86,7 @@
         </tbody>
     </table>
     <br>
-    <button id="reserve-btn">RESERVE</button>
+    <a href="{% url "reservations:payment_request" %}" class="reserve-btn">RESERVE</a>
 {% endblock %}
 
 {% block footer_refrences %}
@@ -127,36 +106,5 @@
                 reserve_add.val(reserve_number);
             }
         }
-
-        const myButton = document.getElementById("reserve-btn")
-        const url = '/table/payment/'
-        const data = {
-            date: '{{ date|date:"Y-m-d" }}',
-            time: '{{ time|time:"H:i" }}',
-            price: '{{ price }}',
-            week: '{{ week_number }}',
-        }
-        myButton.addEventListener("click", function () {
-            const loader = document.createElement("div");
-            loader.classList.add("loader");
-            myButton.appendChild(loader);
-            $.ajax({
-                type: 'POST',
-                url: url,
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                data: data,
-                success: function (response) {
-                    window.location.href = response
-                },
-                complete: function () {
-                    myButton.removeChild(loader);
-                },
-                error: function (error) {
-                    console.error(error);
-                }
-            });
-        });
     </script>
 {% endblock %}

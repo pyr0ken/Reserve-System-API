@@ -22,7 +22,7 @@ class TimeStap():
         return datetime.strptime(value, "%Y-%m-%d").date()
 
     def get_correct_time(self, value: str) -> time:
-        return datetime.strptime(value, "%H:%M").time()
+        return datetime.strptime(value, "%H:%M:%S").time()
 
     def get_week_date_list(self, week_number: int) -> list[date]:
         week_date_list = []

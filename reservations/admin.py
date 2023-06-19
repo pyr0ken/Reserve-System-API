@@ -4,6 +4,7 @@ from .models import SonsTimes, Reservations
 
 class SonsTimesAdmin(admin.ModelAdmin):
     list_display = ['time_format', 'price', 'holiday_price']
+    list_display_links = ["time_format"]
     fieldsets = [
         ("Time info", {"fields": ["time"]}),
         ("Price info", {"fields": ["price", "holiday_price"]}),
@@ -16,13 +17,14 @@ class SonsTimesAdmin(admin.ModelAdmin):
 
 
 class ReservationsAdmin(admin.ModelAdmin):
-    list_display = ["user", "date", "time", "price"]
+    list_display = ["user", "is_paid", "date", "time", "price"]
+    list_display_links = ["user"]
     list_filter = ["date", "time", "price"]
     readonly_fields = ["created_at", "updated_at"]
     fieldsets = [
         ("Personal info", {"fields": ["user"]}),
-        ("Reserve info", {"fields": ["date", "time", "price"]}),
-        ("Transaction info", {"fields": ["RfID", "authority", "created_at", "updated_at"]}),
+        ("Reserve info", {"fields": ["date", "time", "price", "sons_time"]}),
+        ("Transaction info", {"fields": ["is_paid", "finally_price", "RfID", "authority", "created_at", "updated_at"]}),
     ]
     search_fields = ["date", "time", "price", "authority", "RfID"]
     ordering = ["-date"]

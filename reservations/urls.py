@@ -8,7 +8,10 @@ api_url = [
 app_name = 'reservations'
 urlpatterns = [
     path('api/', include(api_url)),
-    path("table/week/<int:week_number>/", views.ReservationsView.as_view(), name="table"),
-    path("table/payment/", views.PaymentView.as_view(), name="payment"),
-    path("table/payment/verify", views.PaymentView.as_view(), name="payment"),
+    path("table/week/<int:week_number>/", views.ReservationsTableView.as_view(), name="table"),
+    path("table/reservation/<str:reserve_date>/<str:reserve_time>/", views.ReservationsDetailView.as_view(),
+         name="detail"),
+    path("payment/request/", views.ReservationsPaymentView.as_view(),
+         name="payment_request"),
+    path("payment/verify/", views.ReservationsVerifyView.as_view(), name="payment_verify"),
 ]

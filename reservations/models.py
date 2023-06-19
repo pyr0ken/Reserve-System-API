@@ -21,13 +21,16 @@ class SonsTimes(models.Model):
 
 class Reservations(models.Model):
     user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user_reserves")
+    sons_time = models.ForeignKey(to=SonsTimes, on_delete=models.CASCADE, related_name="sons_time_reserves")
     date = models.DateField()
     time = models.TimeField()
     price = models.DecimalField(decimal_places=0, max_digits=10)
-    authority = models.CharField(max_length=200)
-    RfID = models.CharField(max_length=200)
+    authority = models.BigIntegerField(null=True, blank=True)
+    RfID = models.BigIntegerField(null=True, blank=True)
+    finally_price = models.DecimalField(decimal_places=0, max_digits=10, null=True, blank=True)  # DELETE this.
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_paid = models.BooleanField(default=False)
 
     class Meta:
         db_table = "ReserveSystem_reservations"

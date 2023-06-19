@@ -21,7 +21,9 @@
             padding: 2rem;
         }
 
-        p {
+        a {
+            text-decoration: none;
+            color: #fff;
             cursor: pointer;
         }
 
@@ -55,10 +57,19 @@
                 {% for date in week_date %}
                     <td>
                         {% if sons_time.time < now.time and date == now.date %}
-                            fuck
+                            <strong>TIME OUT</strong>
                         {% else %}
-                            <p class="send"
-                               onclick="sendRequest('{{ date|date:"Y-m-d" }}','{{ sons_time.time|time:"H:i" }}', '{{ sons_time.price }}')">{{ sons_time.price|three_digits_currency }}</p>
+                            {% for reserved_date in sons_time.sons_time_reserves.all|get_reserved_date_paid %}
+                                {% if reserved_date.date == date and reserved_date.time == sons_time.time and reserved_date.is_paid == True %}
+                                    <strong>RESERVED</strong>
+                                    <br>
+                                    <span>{{ reserved_date.user }}</span>
+                                {% else %}
+                                    <a href="{% url "reservations:detail" reserve_date=date reserve_time=sons_time.time %}">{{ sons_time.price|three_digits_currency }}</a>
+                                {% endif %}
+                            {% empty %}
+                                <a href="{% url "reservations:detail" reserve_date=date reserve_time=sons_time.time %}">{{ sons_time.price|three_digits_currency }}</a>
+                            {% endfor %}
                         {% endif %}
                     </td>
                 {% endfor %}
@@ -66,13 +77,4 @@
         {% endfor %}
         </tbody>
     </table>
-{% endblock %}
-
-{% block footer_refrences %}
-    <script>
-        function sendRequest(date, time, price) {
-            const url = "/table/payment/"
-            window.location.href = url + `?week={{ week_number }}&date=${date}&time=${time}&price=${price}`
-        }
-    </script>
 {% endblock %}

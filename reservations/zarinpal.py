@@ -4,6 +4,8 @@
 # from django.conf import settings
 from suds.client import Client
 
+from reservations.models import Reservations
+
 # if settings.SANDBOX:
 #     sandbox = 'sandbox'
 # else:
@@ -12,12 +14,12 @@ from suds.client import Client
 # TODO: Important: need to edit for really server.
 ZP_API_STARTPAY = f"https://sandbox.zarinpal.com/pg/StartPay/"
 ZARINPAL_WEBSERVICE = f'https://sandbox.zarinpal.com/pg/services/WebGate/wsdl'
-CallbackURL = 'http://127.0.0.1:8000/table/payment/verify/'
+CallbackURL = 'http://127.0.0.1:8000/payment/verify/'
 MERCHANT = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 
 
-def payment_request(amount: int, description: str,
-                    email: str = None, mobile: str = None) -> str:
+def payment_request(amount: int, description: str, order: Reservations,
+                    email: str = None, mobile: str = None,) -> str:
     client = Client(ZARINPAL_WEBSERVICE)
     result = client.service.PaymentRequest(MERCHANT,
                                            amount,
@@ -26,8 +28,9 @@ def payment_request(amount: int, description: str,
                                            mobile,
                                            CallbackURL)
     if result.Status == 100:
-        authority = result.Authority
-        return ZP_API_STARTPAY + str(authority)
+        order.authority = result.Authority
+        order.save()
+        return ZP_API_STARTPAY + str(order.authority)
     else:
         return error_generator(result.Status)
 
