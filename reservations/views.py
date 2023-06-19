@@ -1,11 +1,10 @@
-from urllib.error import URLError
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest, HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.views import View
 from extensions.Timestap import TimeStap
 from .models import SonsTimes, Reservations
+from .forms import ReservationCountForm
 from .zarinpal import payment_request, payment_verification, ZarinpalError
 
 
@@ -41,10 +40,12 @@ class ReservationsTableView(View):
 
 class ReservationsDetailView(View):
     shamsi = TimeStap()
-    template_name = "reservations/reserve_detail.html"
+    template_name = "reservations/reserve_pay.html"
+    form_class = ReservationCountForm()
 
     def get(self, request: HttpRequest, reserve_date, reserve_time):
         # formatted the date & time
+        count = request.GET.get("count")
         date, time = get_correct_datetime_format(reserve_date, reserve_time)
         price: int
 
@@ -72,13 +73,12 @@ class ReservationsDetailView(View):
         # add data to session
         request.session["reserve_data"] = {
             "date": f"{date}",
-            "time": f"{time}"
+            "time": f"{time}",
+            "count": f"{count}"
         }
 
-        # print(date, time, price)
-        # print(type(date), type(time), type(price))
-
         context = {
+            "form": self.form_class,
             "date": date,
             "time": time,
             "price": price,
@@ -88,15 +88,26 @@ class ReservationsDetailView(View):
 
 
 class ReservationsPaymentView(View):
-    def get(self, request: HttpRequest):
+    def post(self, request: HttpRequest):
+        reserve_count = request.POST.get("count")
         reserve_data = request.session["reserve_data"]
+
         reserve_date = reserve_data.get("date")
         reserve_time = reserve_data.get("time")
-        price: int
 
         date, time = get_correct_datetime_format(reserve_date, reserve_time)
         sons_time = SonsTimes.objects.filter(time__exact=time).first()
         price = sons_time.price
+
+        try:
+            count = int(reserve_count)
+        except ValueError:
+            raise Http404
+
+        print(reserve_count)
+        print(count)
+
+        request.session["reserve_data"]["count"] = f"{count}"
 
         new_reserve = Reservations(
             user_id=request.user.id,
@@ -106,16 +117,14 @@ class ReservationsPaymentView(View):
             price=price,
         )
 
-        # print(date, time, price)
-        # print(type(date), type(time), type(price))
-
-        amount = new_reserve.price * 10  # convert to Rial
+        amount = int(new_reserve.price * 10)  # convert to Rial
         description = "! Thank You Man"
         email = new_reserve.user.email
         try:
             redirect_url = payment_request(amount, description, new_reserve, email)
 
-            return redirect(redirect_url)
+            return HttpResponse(f"{count}")
+            # return redirect(redirect_url)
         except ZarinpalError as e:
             return HttpResponse(e)
 
@@ -137,7 +146,9 @@ class ReservationsVerifyView(View):
 
                 # everything is ok
                 if code == 100:
-                    new_reserve.RfID = ref_id
+                    count = request.session["reserve_data"]["count"]
+
+                    new_reserve.RefID = ref_id
                     new_reserve.is_paid = True
                     new_reserve.save()
 

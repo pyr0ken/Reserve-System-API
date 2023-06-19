@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load jalali_tags %}
+{% load custom_field_lookups %}
+
+{% block header_refrences %}
+    <style>
+        body {
+            background-color: #0009;
+            color: #fff;
+            text-align: center;
+        }
+
+        table {
+            margin: auto;
+            font-family: Vazirmatn, sans-sarif;
+            margin-top: 268px;
+        }
+
+        th, td {
+            border: 1px solid #000;
+            padding: 2rem;
+        }
+
+        .reserve-btn {
+            padding: 20px;
+            background: #0005;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: .2s;
+            cursor: pointer;
+            border: 0;
+            font-size: 1.3rem;
+        }
+
+        .reserve-btn:hover {
+            background-color: #000;
+        }
+
+
+    </style>
+
+{% endblock %}
+
+{% block title %}
+    Reserve Tabel
+{% endblock %}
+
+{% block content %}
+    <table>
+        <thead>
+        <tr>
+            <th>تاریخ</th>
+            <th>روز هفته</th>
+            <th>زمان</th>
+            <th>تعداد جلسات</th>
+            <th>قیمت</th>
+            <th>رزرو کن!</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <form action="{% url "reservations:payment_request" %}" method="POST" novalidate>
+                <td>{{ date|to_jalali }}</td>
+                <td>{{ date|get_parsian_weekday }}</td>
+                <td>{{ time|time:"H:i" }}</td>
+                <td>
+                    {% csrf_token %}
+                    {{ form.count }}
+                    {{ form.errors }}
+                </td>
+                <td>{{ price|three_digits_currency }}</td>
+                <td><input type="submit" class="reserve-btn" value="RESERVE"></td>
+            </form>
+        </tr>
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block footer_refrences %}
+    <script>
+        {#$(".reserve-btn").on("click", function () {#}
+        {#        const reserve_count = $(".reserve_count").val();#}
+        {#        const url = "";#}
+        {#        console.log(reserve_count)#}
+        {#        $.ajax({#}
+        {#            url: url + `?count=${reserve_count}`,#}
+        {#            type: "GET",#}
+        {#            success: function (response) {#}
+        {#                console.log("Success!");#}
+        {#            },#}
+        {#            error: function (xhr) {#}
+        {#                console.log(xhr.responseText);#}
+        {#            }#}
+        {#        });#}
+        {#    }#}
+        {#)#}
+    </script>
+{% endblock %}

@@ -25,32 +25,14 @@ class Reservations(models.Model):
     date = models.DateField()
     time = models.TimeField()
     price = models.DecimalField(decimal_places=0, max_digits=10)
+    is_paid = models.BooleanField(default=False)
     authority = models.BigIntegerField(null=True, blank=True)
-    RfID = models.BigIntegerField(null=True, blank=True)
-    finally_price = models.DecimalField(decimal_places=0, max_digits=10, null=True, blank=True)  # DELETE this.
+    RefID = models.BigIntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    is_paid = models.BooleanField(default=False)
 
     class Meta:
         db_table = "ReserveSystem_reservations"
 
     def __str__(self):
         return f"user:{self.user} - created:{self.created_at}"
-
-# class Transactions(models.Model):
-#     payment_id = models.CharField(max_length=32, unique=True)
-#     sons_time = models.ForeignKey('SonsTimes', on_delete=models.CASCADE)
-#     name = models.CharField(max_length=255)
-#     id_card = models.CharField(max_length=255)
-#     phone = models.CharField(max_length=255)
-#     date = models.CharField(max_length=255)
-#     price = models.PositiveBigIntegerField()
-#     status = models.PositiveSmallIntegerField(default=1)  # 1 pending pay, 0 failure, 2 success
-#     sessions = models.IntegerField(null=True)
-#     transactionId = models.CharField(max_length=255, null=True)
-#     referenceId = models.CharField(max_length=255, null=True)
-#     invoice_details = models.TextField(null=True)
-#     transaction_result = models.TextField(null=True)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
