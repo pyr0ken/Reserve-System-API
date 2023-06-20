@@ -43,7 +43,7 @@
             {% for date in week_date %}
                 <th>
                     <p class="send">{{ date|to_jalali }}</p>
-                    <p>{{ date|get_parsian_weekday }}</p>
+                    <p>{{ date|get_persian_weekday }}</p>
                 </th>
             {% endfor %}
         </tr>
@@ -59,17 +59,13 @@
                         {% if sons_time.time < now.time and date == now.date %}
                             <strong>TIME OUT</strong>
                         {% else %}
-                            {% for reserved_date in sons_time.sons_time_reserves.all|get_reserved_date_paid %}
-                                {% if reserved_date.date == date and reserved_date.time == sons_time.time and reserved_date.is_paid == True %}
-                                    <strong>RESERVED</strong>
-                                    <br>
-                                    <span>{{ reserved_date.user }}</span>
-                                {% else %}
-                                    <a href="{% url "reservations:detail" reserve_date=date reserve_time=sons_time.time %}">{{ sons_time.price|three_digits_currency }}</a>
-                                {% endif %}
-                            {% empty %}
+                            {% if date|check_reserved_date == True and sons_time.time|check_reserved_time == True%}
+                                <strong>RESERVED</strong>
+                                <br>
+                                <span>HI</span>
+                            {% else %}
                                 <a href="{% url "reservations:detail" reserve_date=date reserve_time=sons_time.time %}">{{ sons_time.price|three_digits_currency }}</a>
-                            {% endfor %}
+                            {% endif %}
                         {% endif %}
                     </td>
                 {% endfor %}

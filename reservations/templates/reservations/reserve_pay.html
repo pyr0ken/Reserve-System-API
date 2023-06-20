@@ -62,7 +62,7 @@
         <tr>
             <form action="{% url "reservations:payment_request" %}" method="POST" novalidate>
                 <td>{{ date|to_jalali }}</td>
-                <td>{{ date|get_parsian_weekday }}</td>
+                <td>{{ date|get_persian_weekday }}</td>
                 <td>{{ time|time:"H:i" }}</td>
                 <td>
                     {% csrf_token %}

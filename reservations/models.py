@@ -28,6 +28,7 @@ class Reservations(models.Model):
     is_paid = models.BooleanField(default=False)
     authority = models.BigIntegerField(null=True, blank=True)
     RefID = models.BigIntegerField(null=True, blank=True)
+    count = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

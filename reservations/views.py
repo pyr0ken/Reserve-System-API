@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest, HttpResponse, Http404
 from django.shortcuts import render, redirect
@@ -107,50 +109,61 @@ class ReservationsPaymentView(View):
         print(reserve_count)
         print(count)
 
-        request.session["reserve_data"]["count"] = f"{count}"
-
-        new_reserve = Reservations(
+        add_reserve = Reservations(
             user_id=request.user.id,
             sons_time_id=sons_time.id,
             date=date,
             time=time,
             price=price,
+            count=count
         )
 
-        amount = int(new_reserve.price * 10)  # convert to Rial
+        amount = int(add_reserve.price * 10)  # convert to Rial
         description = "! Thank You Man"
-        email = new_reserve.user.email
+        email = add_reserve.user.email
         try:
-            redirect_url = payment_request(amount, description, new_reserve, email)
+            redirect_url = payment_request(amount, description, add_reserve, email)
+            return redirect(redirect_url)
 
-            return HttpResponse(f"{count}")
-            # return redirect(redirect_url)
         except ZarinpalError as e:
             return HttpResponse(e)
 
 
 class ReservationsVerifyView(View):
     def get(self, request: HttpRequest):
+
         if request.GET.get('Status') == 'OK':
             authority = int(request.GET.get('Authority'))
             try:
                 # try to found transaction
                 try:
-                    new_reserve = Reservations.objects.get(authority=authority)
+                    add_reserve = Reservations.objects.get(authority=authority)
 
                 # if we couldn't find the transaction
                 except ObjectDoesNotExist:
                     return HttpResponse('we can\'t find this transaction')
 
-                code, message, ref_id = payment_verification(new_reserve.price * 10, authority)
+                code, message, ref_id = payment_verification(add_reserve.price * 10, authority)
 
                 # everything is ok
                 if code == 100:
-                    count = request.session["reserve_data"]["count"]
+                    count = add_reserve.count
+                    print(count)
 
-                    new_reserve.RefID = ref_id
-                    new_reserve.is_paid = True
-                    new_reserve.save()
+                    if count > 1:
+                        for reserve_count in range(0, count):
+                            new_date = add_reserve.date + timedelta(days=7 * reserve_count)
+                            new_reserve = Reservations(
+                                user_id=add_reserve.user.id,
+                                sons_time_id=add_reserve.sons_time.id,
+                                time=add_reserve.time,
+                                price=add_reserve.price,
+                                authority=add_reserve.authority,
+                                RefID=add_reserve.RefID,
+                                is_paid=True,
+                                date=new_date
+                            )
+                            new_reserve.save()
 
                     content = {
                         'type': 'Success',
@@ -158,6 +171,7 @@ class ReservationsVerifyView(View):
                     }
                     # messages.success(request, f'پرداخت با موفیقت انجام شد. کد رهگیری {ref_id}')
                     return HttpResponse("<h1>Success!</h1>")
+
 
                 # operation was successful but PaymentVerification operation on this transaction have already been done
                 elif code == 101:

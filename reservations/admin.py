@@ -24,7 +24,7 @@ class ReservationsAdmin(admin.ModelAdmin):
     fieldsets = [
         ("Personal info", {"fields": ["user"]}),
         ("Reserve info", {"fields": ["date", "time", "price", "sons_time"]}),
-        ("Transaction info", {"fields": ["is_paid", "finally_price", "RfID", "authority", "created_at", "updated_at"]}),
+        ("Transaction info", {"fields": ["is_paid", "RefID", "authority", "created_at", "updated_at"]}),
     ]
     search_fields = ["date", "time", "price", "authority", "RfID"]
     ordering = ["-date"]

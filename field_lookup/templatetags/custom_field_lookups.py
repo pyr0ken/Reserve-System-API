@@ -1,3 +1,5 @@
+import datetime
+
 from django import template
 from extensions.Timestap import TimeStap
 from reservations.models import Reservations
@@ -9,12 +11,20 @@ register = template.Library()
 def three_digits_currency(value: int) -> str:
     return '{:,}'.format(value) + ' تومان'
 
-@register.filter(name='get_parsian_weekday')
-def get_parsian_weekday(date) -> str:
+
+@register.filter(name='get_persian_weekday')
+def get_persian_weekday(date) -> str:
     shamsi = TimeStap()
     return shamsi.get_persian_weekday(date)
 
 
-@register.filter(name="get_reserved_date_paid")
-def get_reserved_date_paid(value: Reservations) -> Reservations:
-    return value.filter(is_paid=True)
+@register.filter(name="check_reserved_date")
+def check_reserved_date(date: datetime.date) -> bool:
+    if Reservations.objects.filter(date__exact=date, is_paid=True).exists():
+        return True
+
+
+@register.filter(name="check_reserved_time")
+def check_reserved_time(time: datetime.time) -> bool:
+    if Reservations.objects.filter(time__exact=time, is_paid=True).exists():
+        return True
