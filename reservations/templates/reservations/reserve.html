@@ -62,7 +62,7 @@
                             {% if date|check_reserved_date == True and sons_time.time|check_reserved_time == True%}
                                 <strong>RESERVED</strong>
                                 <br>
-                                <span>HI</span>
+                                <span>{% get_fullname_reserved_date date sons_time.time %}</span>
                             {% else %}
                                 <a href="{% url "reservations:detail" reserve_date=date reserve_time=sons_time.time %}">{{ sons_time.price|three_digits_currency }}</a>
                             {% endif %}

@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import HttpRequest, HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.views import View
@@ -115,10 +115,10 @@ class ReservationsPaymentView(View):
             date=date,
             time=time,
             price=price,
-            count=count
+            count=count,
         )
 
-        amount = int(add_reserve.price * 10)  # convert to Rial
+        amount = int(add_reserve.price * count) * 10  # convert to Rial
         description = "! Thank You Man"
         email = add_reserve.user.email
         try:
@@ -142,28 +142,39 @@ class ReservationsVerifyView(View):
                 # if we couldn't find the transaction
                 except ObjectDoesNotExist:
                     return HttpResponse('we can\'t find this transaction')
+                except MultipleObjectsReturned:
+                    raise Http404
 
-                code, message, ref_id = payment_verification(add_reserve.price * 10, authority)
+                price = int(add_reserve.price * add_reserve.count) * 10  # convert to Rial.
+                code, message, ref_id = payment_verification(price, authority)
 
                 # everything is ok
                 if code == 100:
                     count = add_reserve.count
                     print(count)
 
-                    if count > 1:
-                        for reserve_count in range(0, count):
-                            new_date = add_reserve.date + timedelta(days=7 * reserve_count)
-                            new_reserve = Reservations(
-                                user_id=add_reserve.user.id,
-                                sons_time_id=add_reserve.sons_time.id,
-                                time=add_reserve.time,
-                                price=add_reserve.price,
-                                authority=add_reserve.authority,
-                                RefID=add_reserve.RefID,
-                                is_paid=True,
-                                date=new_date
-                            )
-                            new_reserve.save()
+                    # todo: fix date validator bug.
+                    for reserve_count in range(0, count):
+
+                        new_reservation_date = add_reserve.date + timedelta(days=7 * reserve_count)
+
+                        while Reservations.objects.filter(date__exact=new_reservation_date, is_paid=True).exists():
+                            new_reservation_date += timedelta(days=7)
+
+                        new_reserve = Reservations(
+                            user_id=add_reserve.user.id,
+                            sons_time_id=add_reserve.sons_time.id,
+                            time=add_reserve.time,
+                            price=add_reserve.price,
+                            authority=add_reserve.authority,
+                            count=add_reserve.count,
+                            RefID=ref_id,
+                            is_paid=True,
+                            date=new_reservation_date,
+                        )
+                        new_reserve.save()
+
+                    Reservations.objects.get(authority=authority, is_paid=False).delete()
 
                     content = {
                         'type': 'Success',

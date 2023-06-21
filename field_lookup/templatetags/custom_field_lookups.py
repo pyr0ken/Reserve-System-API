@@ -28,3 +28,10 @@ def check_reserved_date(date: datetime.date) -> bool:
 def check_reserved_time(time: datetime.time) -> bool:
     if Reservations.objects.filter(time__exact=time, is_paid=True).exists():
         return True
+
+
+@register.simple_tag(name="get_fullname_reserved_date")
+def get_fullname_reserved_date(date: datetime.date, time: datetime.time) -> str:
+    reserved_data = Reservations.objects.filter(date__exact=date, time__exact=time, is_paid=True).first()
+    return reserved_data.user
+
