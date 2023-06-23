@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load jalali_tags %}
+{% load custom_field_lookups %}
+
+
+{% block title %}جدول زمانبندی{% endblock %}
+
+{% block header_references %}
+    <link rel="stylesheet" href="{% static 'css/table.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="table-div">
+        {% include 'inc/menubar.html' %}
+        <main class="table persian-digit">
+            <section class="table__header">
+                <a href="{% url 'reservations:table' week_number=1 %}"
+                   class="{% if request.resolver_match.url_name == 'table' and request.resolver_match.kwargs.week_number == 1 %}url_resolver{% endif %}">هفته
+                    اول</a>
+                <a href="{% url 'reservations:table' week_number=2 %}"
+                   class="{% if request.resolver_match.url_name == 'table' and request.resolver_match.kwargs.week_number == 2 %}url_resolver{% endif %}">هفته
+                    دوم</a>
+                <a href="{% url 'reservations:table' week_number=3 %}"
+                   class="{% if request.resolver_match.url_name == 'table' and request.resolver_match.kwargs.week_number == 3 %}url_resolver{% endif %}">هفته
+                    سوم</a>
+                <a href="{% url 'reservations:table' week_number=4 %}"
+                   class="{% if request.resolver_match.url_name == 'table' and request.resolver_match.kwargs.week_number == 4 %}url_resolver{% endif %}">هفته
+                    چهارم</a>
+            </section>
+            <section class="table__body">
+                <table style="direction: rtl">
+                    <thead>
+                    <tr>
+                        <th><strong>روز / زمان</strong></th>
+                        {% for date in week_dates %}
+                            <th>
+                                <div>
+                                    <strong>
+                                        {{ date|to_jalali }}
+                                    </strong>
+                                    <p>
+                                        {{ date|get_persian_weekday }}
+                                    </p>
+                                </div>
+                            </th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for sons_time in sons_times %}
+                        <tr>
+                            <th>{{ sons_time.time|time:"H:i" }}</th>
+                            {% for date in week_dates %}
+                                <td class="{% check_date_status date sons_time.time %}">
+                                    {% if sons_time.time < now.time and date == now.date %}
+                                        <strong>زمان رزرو گذشته!</strong>
+                                    {% elif date|check_reserved_date == True and sons_time.time|check_reserved_time == True %}
+                                        <div class="reserved-box">
+                                            <strong>رزرو شده!</strong>
+                                            <span>{% get_fullname_reserved_date date sons_time.time %}</span>
+                                        </div>
+                                    {% else %}
+                                        <a href="{% url "reservations:detail" reserve_date=date reserve_time=sons_time.time %}">
+                                            <div class="open-box">
+                                                <span>{{ sons_time.price|three_digits_currency }} تومان</span>
+                                                <strong>رزرو کنید!</strong>
+                                            </div>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+{% endblock %}
+
+{% block footer_references %}
+    <script>
+        {% if messages %}
+            {% for msg in messages %}
+                Swal.fire({
+                    title: 'اعلان',
+                    text: '{{ msg }}',
+                    icon: '{{ msg.tags }}',
+                    showCancelButton: true,
+                    confirmButtonText: 'ثبت نام',
+                    cancelButtonText: 'بستن',
+                    cancelButtonColor: "red",
+                    focusConfirm: true,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "/accounts/register/";
+                    }
+                })
+            {% endfor %}
+        {% endif %}
+    </script>
+{% endblock %}

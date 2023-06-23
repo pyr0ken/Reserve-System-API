@@ -19,13 +19,13 @@ MERCHANT = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 
 
 def payment_request(amount: int, description: str, order: Reservations,
-                    email: str = None, mobile: str = None,) -> str:
+                    mobile: str = None, email: str = None, ) -> str:
     client = Client(ZARINPAL_WEBSERVICE)
     result = client.service.PaymentRequest(MERCHANT,
                                            amount,
                                            description,
-                                           email,
                                            mobile,
+                                           email,
                                            CallbackURL)
     if result.Status == 100:
         order.authority = result.Authority

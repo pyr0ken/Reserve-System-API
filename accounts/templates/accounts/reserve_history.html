@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load jalali_tags %}
+{% load custom_field_lookups %}
+
+{% block title %}پروفایل کاربری{% endblock %}
+
+{% block header_references %}
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'css/reserve_history.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="main-div">
+        {% include 'inc/menubar.html' %}
+        <div class="dashboard" dir="rtl">
+            {% include 'accounts/inc/sidebar.html' %}
+            <div class="main">
+                {% if not user_reserves %}
+                    <div class="info">
+                        <h2> شما تا به حال هیچ رزروی نداشته اید. </h2>
+                        <a href="{% url 'reservations:table' week_number=1 %}">هم اکنون رزرو کنید!</a>
+                    </div>
+                {% else %}
+                    <section class="table__body persian-digit">
+                        <table style="direction: rtl">
+                            <thead>
+                            <tr>
+                                <th>
+                                    <div class="day">
+                                        <p>تاریخ رزرو</p>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="day">
+                                        <p>زمان رزرو</p>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="day">
+                                        <p>قیمت رزرو</p>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="day">
+                                        <p>تاریخ پرداخت</p>
+                                    </div>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for reserve_date in  user_reserves %}
+                                <tr>
+                                    <td class="">
+                                        <p class="status">{{ reserve_date.date|to_jalali }}</p>
+                                    </td>
+                                    <td class="">
+                                        <p class="status">{{ reserve_date.time|time:"H:i" }}</p>
+                                    </td>
+                                    <td class="">
+                                        <p class="status">{{ reserve_date.price|three_digits_currency }} تومان</p>
+                                    </td>
+                                    <td class="">
+                                        <p class="status">{{ reserve_date.created_at|to_jalali }}</p>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </section>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

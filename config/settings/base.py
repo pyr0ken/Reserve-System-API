@@ -45,7 +45,8 @@ INSTALLED_APPS = [
 
     # Third-party apps
     'rest_framework',
-    'jalali_date'
+    'jalali_date',
+    'widget_tweaks',
 ]
 
 # Django REST Framework

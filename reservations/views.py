@@ -1,17 +1,25 @@
 from datetime import timedelta
 
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import HttpRequest, HttpResponse, Http404
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views import View
-from extensions.Timestap import TimeStap
+from django.views.generic import TemplateView
+from extensions.Timestep import TimeStep
 from .models import SonsTimes, Reservations
 from .forms import ReservationCountForm
 from .zarinpal import payment_request, payment_verification, ZarinpalError
 
 
+class HomeView(TemplateView):
+    template_name = 'reservations/home.html'
+
+
 def get_correct_datetime_format(date, time):
-    shamsi = TimeStap()
+    shamsi = TimeStep()
     try:
         correct_date = shamsi.get_correct_date(date)
         correct_time = shamsi.get_correct_time(time)
@@ -22,8 +30,8 @@ def get_correct_datetime_format(date, time):
 
 
 class ReservationsTableView(View):
-    shamsi = TimeStap()
-    template_name = 'reservations/reserve.html'
+    shamsi = TimeStep()
+    template_name = 'reservations/reserve_table.html'
 
     def get(self, request: HttpRequest, week_number: int):
         now = self.shamsi.now()
@@ -33,7 +41,7 @@ class ReservationsTableView(View):
         context = {
             'now': now,
             'week_number': week_number,
-            'week_date': week_date_list,
+            'week_dates': week_date_list,
             'sons_times': sons_times,
         }
 
@@ -41,13 +49,18 @@ class ReservationsTableView(View):
 
 
 class ReservationsDetailView(View):
-    shamsi = TimeStap()
+    shamsi = TimeStep()
     template_name = "reservations/reserve_pay.html"
     form_class = ReservationCountForm()
 
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, "لطفا اول ثبت نام کنید!")
+            return redirect(reverse('reservations:table', args=[1]))
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request: HttpRequest, reserve_date, reserve_time):
         # formatted the date & time
-        count = request.GET.get("count")
         date, time = get_correct_datetime_format(reserve_date, reserve_time)
         price: int
 
@@ -76,20 +89,19 @@ class ReservationsDetailView(View):
         request.session["reserve_data"] = {
             "date": f"{date}",
             "time": f"{time}",
-            "count": f"{count}"
         }
 
         context = {
             "form": self.form_class,
-            "date": date,
-            "time": time,
-            "price": price,
+            "reserve_date": date,
+            "reserve_time": time,
+            "reserve_price": price,
         }
 
         return render(request, self.template_name, context)
 
 
-class ReservationsPaymentView(View):
+class ReservationsPaymentView(LoginRequiredMixin, View):
     def post(self, request: HttpRequest):
         reserve_count = request.POST.get("count")
         reserve_data = request.session["reserve_data"]
@@ -106,6 +118,9 @@ class ReservationsPaymentView(View):
         except ValueError:
             raise Http404
 
+        if not 1 <= count <= 50:
+            raise Http404
+
         print(reserve_count)
         print(count)
 
@@ -118,18 +133,18 @@ class ReservationsPaymentView(View):
             count=count,
         )
 
-        amount = int(add_reserve.price * count) * 10  # convert to Rial
+        amount = int(add_reserve.price * count)  # * 10 for convert to Rial
         description = "! Thank You Man"
-        email = add_reserve.user.email
+        phone_number = add_reserve.user.phone_number
         try:
-            redirect_url = payment_request(amount, description, add_reserve, email)
+            redirect_url = payment_request(amount, description, add_reserve, phone_number)
             return redirect(redirect_url)
 
         except ZarinpalError as e:
             return HttpResponse(e)
 
 
-class ReservationsVerifyView(View):
+class ReservationsVerifyView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest):
 
         if request.GET.get('Status') == 'OK':
@@ -145,7 +160,7 @@ class ReservationsVerifyView(View):
                 except MultipleObjectsReturned:
                     raise Http404
 
-                price = int(add_reserve.price * add_reserve.count) * 10  # convert to Rial.
+                price = int(add_reserve.price * add_reserve.count)  # * 10 for convert to Rial.
                 code, message, ref_id = payment_verification(price, authority)
 
                 # everything is ok

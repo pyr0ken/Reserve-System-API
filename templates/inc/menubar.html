@@ -1,0 +1,30 @@
+{% load static %}
+<header dir="ltr">
+    <a href="{% url 'home' %}"><img src="{% static 'image/logo.png' %}" class="logo" width="150px" alt=""></a>
+    <ul>
+        {% if request.user.is_authenticated %}
+            <li><a href="#" onclick="doLogout()" class="Logout">خروج</a></li>
+            {% with 'reserve_history edit_profile change_password' as profile %}
+                <li><a href="{% url 'accounts:reserve_history' %}"
+                       class="Profile {% if request.resolver_match.url_name in profile %}active-menubar{% endif %}">پروفایل</a>
+                </li>
+                {% if request.user.is_admin%}
+                <li><a href="/admin/" class="Logout">پنل ادمین</a></li>
+                {% endif %}
+            {% endwith %}
+        {% else %}
+            <li><a href="{% url 'accounts:login' %}"
+                   class="Login {% if request.resolver_match.url_name == 'login' %}active-menubar{% endif %}">ورود</a>
+            </li>
+            <li><a href="{% url 'accounts:register' %}"
+                   class="Register {% if request.resolver_match.url_name == 'register' %}active-menubar{% endif %}">ثبت
+                نام</a></li>
+        {% endif %}
+        <li><a href="{% url 'reservations:table' week_number=1 %}"
+               class="Table {% if request.resolver_match.url_name == 'table' %}active-menubar{% endif %}">جدول
+            زمانبندی</a></li>
+        <li><a href="{% url 'home' %}"
+               class="Home {% if request.resolver_match.url_name == 'home' %}active-menubar{% endif %}">خانه</a></li>
+        <div id="marker"></div>
+    </ul>
+</header>

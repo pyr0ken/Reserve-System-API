@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}
+    صفحه اصلی
+{% endblock %}
+
+{% block header_references %}
+        <link rel="stylesheet" href="{% static 'css/home.css' %}" />
+{% endblock %}
+
+
+{% block content %}
+    <div class="main">
+      <div class="container">
+        {% include 'inc/menubar.html' %}
+        <div class="content">
+          <h2>سامانه رزرو سالن</h2><br>
+          <p>
+            خوش آمدید به اولین سامانه رزرو آنلاین شهرستان چابهار!
+            شما در این سایت میتوانید در کمترین زمان ممکن سانس مورد نظر خود را برای سالن ورزشی رزرو کنید.
+            ( <span style="color: red">توجه :</span> سایت در نسخه آزمایشی قرار دارد و تمامی پرداخت ها غیر واقعی میباشند. )
+          </p>
+          <a href="{% url 'reservations:table' week_number=1 %}">همین الان رزرو کنید!</a>
+        </div>
+        <div class="imgBox">
+            <img src="{% static 'image/character.png' %}" alt="">
+        </div>
+        <p class="copyrightText" dir="ltr">
+            Developed By Mohammad Hosein Yaghoubi. Copyright &#169 2023 Reserve Salon. All Right Reserved.
+        </p>
+      </div>
+    </div>
+{% endblock %}
+
+{% block footer_references %}
+    <script src="{% static 'js/custom.js' %}"></script>
+    <script>
+        {% if messages %}
+            {% for msg in messages %}
+                Swal.fire({
+                    title:"اعلان",
+                    text: "{{ msg }}",
+                    icon: "{{ msg.tags }}",
+                    confirmButton: "باشه"
+                })
+            {% endfor %}
+        {% endif %}
+    </script>
+{% endblock %}

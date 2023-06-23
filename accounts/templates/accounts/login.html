@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}ورود{% endblock %}
+
+{% block header_references %}
+    <link rel="stylesheet" href="{% static 'css/base_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base_menubar.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="main">
+        <section>
+            <img src="{% static 'image/bg-3.jpg' %}" alt="" class="bg">
+            {% include 'inc/menubar.html' %}
+            <form action="" method="POST" novalidate>
+                <div class="login" style="margin-bottom: 130px !important;">
+                    {% csrf_token %}
+                    <h2>ورود</h2>
+                    <div class="inputBox">
+                        <label for="phone_number"><i class="fa-solid fa-phone"></i>&#160&#160شماره موبایل:</label>
+                        {% render_field login_form.phone_number placeholder="********09" id="phone_number" %}
+                        {{ login_form.phone_number.errors }}
+                    </div>
+                    <div class="inputBox">
+                        <label for="password"><i class="fa-solid fa-lock"></i>&#160&#160رمز عبور:</label>
+                        {% render_field login_form.password placeholder="رمز عبور خود را وارد کنید." id="password" %}
+                        {{ login_form.password.errors }}
+                    </div>
+                    <div class="submit-btn">
+                        <input type="submit" value="ورود" id="btn">
+                    </div>
+                    <div class="group">
+                        <div>
+                            <p>ثبت نام نکرده اید؟ <a href="{% url 'accounts:register' %}">ثبت نام کنید!</a></p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+{% endblock %}
+
+{% block footer_references %}
+    <script src="{% static 'js/custom.js' %}"></script>
+    <script>
+        {% if messages %}
+            {% for msg in messages %}
+                Swal.fire({
+                    title: "اعلان",
+                    text: "{{ msg }}",
+                    icon: "{{ msg.tags }}",
+                    confirmButton: "باشه"
+                })
+            {% endfor %}
+        {% endif %}
+    </script>
+{% endblock %}

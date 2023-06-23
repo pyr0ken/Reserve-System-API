@@ -1,24 +1,21 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from .manager import UserManager
+from .validators import is_valid_phone_number
 
 
 class User(AbstractBaseUser):
-    first_name = models.CharField(
-        max_length=70,
-    )
-    last_name = models.CharField(
-        max_length=70
-    )
-    email = models.EmailField(
-        max_length=100,
+    full_name = models.CharField(max_length=200)
+    phone_number = models.CharField(
+        validators=[is_valid_phone_number],
+        max_length=11,
         unique=True,
     )
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name']
+    USERNAME_FIELD = 'phone_number'
+    REQUIRED_FIELDS = ['full_name']
 
     # required fields
     date_joined = models.DateTimeField(auto_now_add=True)
@@ -30,14 +27,9 @@ class User(AbstractBaseUser):
 
     class Meta:
         db_table = "ReserveSystem_accounts"
-        # verbose_name = 'account'
-        # verbose_popular_name = "accounts"
-
-    def get_fullname(self) -> str:
-        return f'{self.first_name} {self.last_name}'
 
     def __str__(self) -> str:
-        return self.get_fullname()
+        return self.full_name
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"

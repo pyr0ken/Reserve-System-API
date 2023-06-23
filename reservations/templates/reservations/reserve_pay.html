@@ -1,99 +1,138 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
 {% load jalali_tags %}
 {% load custom_field_lookups %}
 
-{% block header_refrences %}
-    <style>
-        body {
-            background-color: #0009;
-            color: #fff;
-            text-align: center;
-        }
+{% block title %}رزرو سانس{% endblock %}
 
-        table {
-            margin: auto;
-            font-family: Vazirmatn, sans-sarif;
-            margin-top: 268px;
-        }
-
-        th, td {
-            border: 1px solid #000;
-            padding: 2rem;
-        }
-
-        .reserve-btn {
-            padding: 20px;
-            background: #0005;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: .2s;
-            cursor: pointer;
-            border: 0;
-            font-size: 1.3rem;
-        }
-
-        .reserve-btn:hover {
-            background-color: #000;
-        }
-
-
-    </style>
-
-{% endblock %}
-
-{% block title %}
-    Reserve Tabel
+{% block header_references %}
+    <link rel="stylesheet" href="{% static 'css/base_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base_menubar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/reserve_page.css' %}">
 {% endblock %}
 
 {% block content %}
-    <table>
-        <thead>
-        <tr>
-            <th>تاریخ</th>
-            <th>روز هفته</th>
-            <th>زمان</th>
-            <th>تعداد جلسات</th>
-            <th>قیمت</th>
-            <th>رزرو کن!</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <form action="{% url "reservations:payment_request" %}" method="POST" novalidate>
-                <td>{{ date|to_jalali }}</td>
-                <td>{{ date|get_persian_weekday }}</td>
-                <td>{{ time|time:"H:i" }}</td>
-                <td>
-                    {% csrf_token %}
-                    {{ form.count }}
-                    {{ form.errors }}
-                </td>
-                <td>{{ price|three_digits_currency }}</td>
-                <td><input type="submit" class="reserve-btn" value="RESERVE"></td>
+    <div class="main">
+        <section>
+            <img src="{% static 'image/bg-5.jpg' %}" alt="" class="bg">
+            {% include 'inc/menubar.html' %}
+            <form action="{% url 'reservations:payment_request' %}" method="POST" novalidate>
+                {% csrf_token %}
+                <div class="login">
+                    <h2>رزرو سانس</h2>
+                    <div class="info-box persian-digit">
+                        <div class="text-box persian-digit">
+                            <span>تاریخ سانس:</span>
+                            <span class="">{{ reserve_date|to_jalali }} - {{ reserve_date|get_persian_weekday }}</span>
+                        </div>
+                        <div class="text-box">
+                            <span>زمان سانس:</span>
+                            <span class="">{{ reserve_time|time:"H:i" }}</span>
+                        </div>
+                        <div class="text-box">
+                            <span>قیمت سانس:</span>
+                            <span class="">{{ reserve_price|three_digits_currency }} تومان</span>
+                        </div>
+                        <div class="text-box">
+                            <span style="color: red">توجه: </span>
+                            <span>اگر اطلاعات هویتی شما نادرست است میتوانید از این لینک آنها را ویرایش کنید.</span>
+                            <span><a href="{% url 'accounts:edit_profile' %}" class="">ویرایش اطلاعات!</a></span>
+                        </div>
+                    </div>
+                    <div class="inputBox-range">
+                        <label for="reserve-count"> تعداد جلسات رزرو: </label>
+                        <span class="range-value">1</span>
+                        {% render_field form.count id="reserve-count" class="range-input" min="1" max="50" %}
+                        {{ form.count.errors }}
+                    </div>
+                    <div class="text-box">
+                        <span>قیمت نهایی:</span>
+                        <span class="final-price"></span><span> تومان</span>
+                    </div>
+                    <div class="submit-btn">
+                        <input type="submit" value="پرداخت" id="btn">
+                    </div>
+                </div>
             </form>
-        </tr>
-        </tbody>
-    </table>
+        </section>
+    </div>
 {% endblock %}
 
-{% block footer_refrences %}
+{% block footer_references %}
     <script>
-        {#$(".reserve-btn").on("click", function () {#}
-        {#        const reserve_count = $(".reserve_count").val();#}
-        {#        const url = "";#}
-        {#        console.log(reserve_count)#}
-        {#        $.ajax({#}
-        {#            url: url + `?count=${reserve_count}`,#}
-        {#            type: "GET",#}
-        {#            success: function (response) {#}
-        {#                console.log("Success!");#}
-        {#            },#}
-        {#            error: function (xhr) {#}
-        {#                console.log(xhr.responseText);#}
-        {#            }#}
-        {#        });#}
-        {#    }#}
-        {#)#}
+        document.addEventListener("DOMContentLoaded", function () {
+            const reserveCountInput = document.querySelector("#reserve-count");
+            const finalPriceSpan = document.querySelector(".final-price");
+            const rangeValueSpan = document.querySelector(".range-value");
+
+            const updateFinalPrice = () => {
+                const reserveCount = parseInt(reserveCountInput.value);
+                const finalPrice = reserveCount * {{ reserve_price }};
+                console.log(reserveCount, finalPrice)
+                finalPriceSpan.textContent = finalPrice.toLocaleString('fa-IR');
+                rangeValueSpan.textContent = reserveCount.toLocaleString('fa-IR');
+            };
+
+            updateFinalPrice()
+            reserveCountInput.addEventListener("input", updateFinalPrice);
+
+            // ----------------- Range Slider ---------------------
+
+            class Slider {
+                constructor(rangeElement, valueElement, options) {
+                    this.rangeElement = rangeElement
+                    this.valueElement = valueElement
+                    this.options = options
+
+                    // Attach a listener to "change" event
+                    this.rangeElement.addEventListener('input', this.updateSlider.bind(this))
+                }
+
+                // Initialize the slider
+                init() {
+                    this.rangeElement.setAttribute('min', options.min)
+                    this.rangeElement.setAttribute('max', options.max)
+                    this.rangeElement.value = options.cur
+
+                    this.updateSlider()
+                }
+
+                // Format the money
+                asMoney(value) {
+                   return parseFloat(value)
+                      .toLocaleString('fa-IR', {maximumFractionDigits: 2})
+                }
+
+                generateBackground(rangeElement) {
+                    if (this.rangeElement.value === this.options.min) {
+                        return
+                    }
+
+                    let percentage = (this.rangeElement.value - this.options.min) / (this.options.max - this.options.min) * 100
+                    return 'background: linear-gradient(to left, #50299c, #7a00ff ' + percentage + '%, #d3edff ' + percentage + '%, #dee1e2 100%)'
+                }
+
+                updateSlider(newValue) {
+                    //this.valueElement.innerHTML = this.asMoney(this.rangeElement.value)
+                    this.rangeElement.style = this.generateBackground(this.rangeElement.value)
+                }
+            }
+
+            let rangeElement = document.querySelector('.range-input')
+            let valueElement = document.querySelector('.range-value')
+
+            let options = {
+                min: 1,
+                max: 50,
+                cur: 1
+            }
+
+            if (rangeElement) {
+                let slider = new Slider(rangeElement, valueElement, options)
+
+                slider.init()
+            }
+        });
     </script>
 {% endblock %}
