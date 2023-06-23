@@ -17,14 +17,8 @@ def get_persian_weekday(date) -> str:
 
 
 @register.filter(name="check_reserved_date")
-def check_reserved_date(date: datetime.date) -> bool:
-    if Reservations.objects.filter(date__exact=date, is_paid=True).exists():
-        return True
-
-
-@register.filter(name="check_reserved_time")
-def check_reserved_time(time: datetime.time) -> bool:
-    if Reservations.objects.filter(time__exact=time, is_paid=True).exists():
+def check_reserved_date(date: datetime.date, time: datetime.time) -> bool:
+    if Reservations.objects.filter(date__exact=date, time__exact=time, is_paid=True).exists():
         return True
 
 
@@ -42,6 +36,6 @@ def check_date_status(date: datetime.date, time: datetime.time) -> str:
     date_status = 'open'
     if date == shamsi.now().date() and time < shamsi.now().time():
         date_status = 'closed'
-    elif check_reserved_date(date) and check_reserved_time(time):
+    elif Reservations.objects.filter(date__exact=date, time__exact=time, is_paid=True).exists():
         date_status = 'reserved'
     return date_status

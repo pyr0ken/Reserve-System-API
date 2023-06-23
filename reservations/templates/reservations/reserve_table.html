@@ -55,7 +55,7 @@
                                 <td class="{% check_date_status date sons_time.time %}">
                                     {% if sons_time.time < now.time and date == now.date %}
                                         <strong>زمان رزرو گذشته!</strong>
-                                    {% elif date|check_reserved_date == True and sons_time.time|check_reserved_time == True %}
+                                    {% elif date|check_reserved_date:sons_time.time%}
                                         <div class="reserved-box">
                                             <strong>رزرو شده!</strong>
                                             <span>{% get_fullname_reserved_date date sons_time.time %}</span>
