@@ -6,6 +6,7 @@ from reservations.models import Reservations
 register = template.Library()
 shamsi = TimeStep()
 
+
 @register.filter(name='three_digits_currency')
 def three_digits_currency(value: int) -> str:
     return '{:,}'.format(value)
@@ -22,6 +23,14 @@ def check_reserved_date(date: datetime.date, time: datetime.time) -> bool:
         return True
 
 
+@register.filter(name="check_time_outed_date")
+def check_time_outed_date(date: datetime.date, time: datetime.time) -> bool:
+    if Reservations.objects.filter(date__exact=date, time__exact=time, is_paid=True).exists():
+        return False
+    if time < shamsi.now().time() and date == shamsi.now().date():
+        return True
+
+
 @register.simple_tag(name="get_fullname_reserved_date")
 def get_fullname_reserved_date(date: datetime.date, time: datetime.time) -> str:
     reserved_data = Reservations.objects.filter(date__exact=date, time__exact=time, is_paid=True).first()
@@ -34,8 +43,11 @@ def get_fullname_reserved_date(date: datetime.date, time: datetime.time) -> str:
 @register.simple_tag(name="check_date_status")
 def check_date_status(date: datetime.date, time: datetime.time) -> str:
     date_status = 'open'
-    if date == shamsi.now().date() and time < shamsi.now().time():
-        date_status = 'closed'
-    elif Reservations.objects.filter(date__exact=date, time__exact=time, is_paid=True).exists():
+    if Reservations.objects.filter(date__exact=date, time__exact=time, is_paid=True).exists():
         date_status = 'reserved'
-    return date_status
+        return date_status
+    elif date == shamsi.now().date() and time < shamsi.now().time():
+        date_status = 'closed'
+        return date_status
+    else:
+        return date_status

@@ -53,7 +53,7 @@
                             <th>{{ sons_time.time|time:"H:i" }}</th>
                             {% for date in week_dates %}
                                 <td class="{% check_date_status date sons_time.time %}">
-                                    {% if sons_time.time < now.time and date == now.date %}
+                                    {% if date|check_time_outed_date:sons_time.time %}
                                         <strong>زمان رزرو گذشته!</strong>
                                     {% elif date|check_reserved_date:sons_time.time%}
                                         <div class="reserved-box">
