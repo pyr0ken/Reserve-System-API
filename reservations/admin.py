@@ -13,6 +13,7 @@ from .models import SonsTimes, Reservations
 class SonsTimesAdmin(admin.ModelAdmin):
     list_display = ['time_format', 'price', 'holiday_price']
     list_display_links = ["time_format"]
+    list_editable = ['price', 'holiday_price']
     fieldsets = [
         ("Time info", {"fields": ["time"]}),
         ("Price info", {"fields": ["price", "holiday_price"]}),

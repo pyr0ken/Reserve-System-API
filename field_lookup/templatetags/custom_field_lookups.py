@@ -51,3 +51,9 @@ def check_date_status(date: datetime.date, time: datetime.time) -> str:
         return date_status
     else:
         return date_status
+
+@register.filter(name="check_holiday_price")
+def check_holiday_price(date: datetime.date):
+    if shamsi.get_persian_weekday(date) in ['پنجشنبه', 'جمعه']:
+        return True
+    return False
