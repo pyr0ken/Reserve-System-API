@@ -57,3 +57,11 @@ def check_holiday_price(date: datetime.date):
     if shamsi.get_persian_weekday(date) in ['پنجشنبه', 'جمعه']:
         return True
     return False
+
+
+@register.filter(name='datetime_to_timestamp')
+def datetime_to_timestamp(date, time):
+    datetime_str = f'{date} {time}'
+    dt_object = datetime.datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
+    timestamp = dt_object.timestamp()
+    return int(timestamp)

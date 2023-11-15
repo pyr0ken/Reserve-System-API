@@ -12,6 +12,7 @@ from extensions.Timestep import TimeStep
 from .models import SonsTimes, Reservations
 from .forms import ReservationCountForm
 from .zarinpal import payment_request, payment_verification, ZarinpalError
+from .utils import timestamp_to_datetime
 
 
 class HomeView(TemplateView):
@@ -59,10 +60,11 @@ class ReservationsDetailView(View):
             return redirect(reverse('reservations:table', args=[1]))
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request: HttpRequest, reserve_date, reserve_time):
+    def get(self, request: HttpRequest,timestamp):
         # formatted the date & time
-        date, time = get_correct_datetime_format(reserve_date, reserve_time)
+        date, time = timestamp_to_datetime(timestamp=timestamp)
         price: int
+
 
         # check the date dose not reserved.
         if Reservations.objects.filter(date__exact=date, time__exact=time, is_paid=True).exists():

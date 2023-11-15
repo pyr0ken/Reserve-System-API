@@ -61,7 +61,7 @@
                                             <span>{% get_fullname_reserved_date date sons_time.time %}</span>
                                         </div>
                                     {% else %}
-                                        <a href="{% url "reservations:detail" reserve_date=date reserve_time=sons_time.time %}">
+                                        <a href="{% url "reservations:detail" timestamp=date|datetime_to_timestamp:sons_time.time %}">
                                             <div class="open-box">
                                                 {% if date|check_holiday_price %}
                                                 <span>{{ sons_time.holiday_price|three_digits_currency }} تومان</span>
