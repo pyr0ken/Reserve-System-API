@@ -6,6 +6,7 @@ from rest_framework import status
 from .serializers import ReservationDateSerializer, ReservationDetailSerializer
 from extensions.Timestep import TimeStep
 from apps.reservations.models import Reservations, SonsTimes
+from jalali_date import date2jalali
 
 shamsi = TimeStep()
 
@@ -25,7 +26,7 @@ class GetReservationWeek(APIView):
             raise NotFound
 
         reservations_dates = shamsi.get_week_date_list(week_number)
-        reservations_dates_dict = [{'date': date} for date in reservations_dates]
+        reservations_dates_dict = [{'date': date2jalali(date)} for date in reservations_dates]
         serializer = ReservationDateSerializer(reservations_dates_dict, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -37,7 +38,7 @@ class GetReservationsDetail(APIView):
         price: int
 
         # check the date dose not reserved.
-        if Reservations.objects.filter(date__exact=date, time__exact=time, is_paid=True).exists():
+        if Reservations.objects.filter(date__exact=date, time__exact=time).exists():
             raise NotFound('این روز رزرو شده است')
 
         sons_time = SonsTimes.objects.filter(time__exact=time)
@@ -59,8 +60,8 @@ class GetReservationsDetail(APIView):
 
         reserve_detail_dict = [
             {
-                'date': reserve_date,
-                'time': reserve_time,
+                'date': date2jalali(date),
+                'time': time,
                 'price': price,
             }
         ]

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'field_lookup.apps.FieldLookupConfig',
     'apps.accounts.apps.AccountsConfig',
     'apps.reservations.apps.ReservationsConfig',
+    'extensions',
 
     # Third-party apps
     'rest_framework',

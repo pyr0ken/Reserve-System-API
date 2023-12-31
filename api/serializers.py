@@ -20,3 +20,4 @@ class ReservationDetailSerializer(serializers.Serializer):
 
     def get_day_of_week(self, obj):
         return shamsi.get_persian_weekday(obj['date'])
+

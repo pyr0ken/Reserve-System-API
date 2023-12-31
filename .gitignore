@@ -51,7 +51,7 @@ celerybeat.pid
 # env.bak/
 # venv.bak/
 # ENV/
-myvenv/
+venv/
 pyvenv.cfg
 
 # Cython debug symbols
@@ -70,4 +70,3 @@ cython_debug/
 # Other
 php/
 python/
-
