@@ -4,7 +4,7 @@
 # from django.conf import settings
 from suds.client import Client
 
-from reservations.models import Reservations
+from apps.reservations.models import Reservations
 
 # if settings.SANDBOX:
 #     sandbox = 'sandbox'

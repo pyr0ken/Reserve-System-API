@@ -1,7 +1,7 @@
 import datetime
 from django import template
 from extensions.Timestep import TimeStep
-from reservations.models import Reservations
+from apps.reservations.models import Reservations
 
 register = template.Library()
 shamsi = TimeStep()

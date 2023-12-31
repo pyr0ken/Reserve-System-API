@@ -1,3 +1,4 @@
+from turtle import mode
 from django.db import models
 from django.conf import settings
 
@@ -25,9 +26,6 @@ class Reservations(models.Model):
     date = models.DateField()
     time = models.TimeField()
     price = models.DecimalField(decimal_places=0, max_digits=10)
-    is_paid = models.BooleanField(default=False)
-    authority = models.BigIntegerField(null=True, blank=True)
-    RefID = models.BigIntegerField(null=True, blank=True)
     count = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -37,3 +35,12 @@ class Reservations(models.Model):
 
     def __str__(self):
         return f"user:{self.user} - created:{self.created_at}"
+
+
+class Transactions(models.Model):
+    user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user_transactions")
+    reservation = models.ForeignKey(to=Reservations, on_delete=models.CASCADE)
+    price = models.DecimalField(decimal_places=0, max_digits=20)
+    is_paid = models.BooleanField(default=False)
+    authority = models.BigIntegerField(null=True, blank=True)
+    RefID = models.BigIntegerField(null=True, blank=True)

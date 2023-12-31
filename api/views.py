@@ -5,7 +5,7 @@ from rest_framework.exceptions import NotFound
 from rest_framework import status
 from .serializers import ReservationDateSerializer, ReservationDetailSerializer
 from extensions.Timestep import TimeStep
-from reservations.models import Reservations, SonsTimes
+from apps.reservations.models import Reservations, SonsTimes
 
 shamsi = TimeStep()
 

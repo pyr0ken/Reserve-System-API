@@ -26,14 +26,14 @@ class SonsTimesAdmin(admin.ModelAdmin):
 
 
 class ReservationsAdmin(admin.ModelAdmin):
-    list_display = ["user", "is_paid", "jdate", "time_format", "price"]
+    list_display = ["user", "jdate", "time_format", "price"]
     list_display_links = ["user"]
-    list_filter = ["is_paid", "date", "time", "price"]
+    list_filter = ["date", "time", "price"]
     readonly_fields = ["created_at", "updated_at"]
     fieldsets = [
         ("Personal info", {"fields": ["user"]}),
         ("Reserve info", {"fields": ["date", "time", "price", "sons_time", "count"]}),
-        ("Transaction info", {"fields": ["is_paid", "RefID", "authority", "created_at", "updated_at"]}),
+        # ("Transaction info", {"fields": ["is_paid", "RefID", "authority", "created_at", "updated_at"]}),
     ]
     search_fields = ["date", "time", "price", "authority", "RfID"]
     ordering = ["date", "time"]

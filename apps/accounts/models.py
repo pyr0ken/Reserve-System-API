@@ -5,7 +5,7 @@ from .validators import is_valid_phone_number
 
 
 class User(AbstractBaseUser):
-    full_name = models.CharField(max_length=200)
+    full_name = models.CharField(max_length=255)
     phone_number = models.CharField(
         validators=[is_valid_phone_number],
         max_length=11,
@@ -22,14 +22,14 @@ class User(AbstractBaseUser):
     last_login = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-    is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
     class Meta:
-        db_table = "ReserveSystem_accounts"
+        db_table = "accounts"
 
     def __str__(self) -> str:
         return self.full_name
+
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"
@@ -41,8 +41,8 @@ class User(AbstractBaseUser):
         # Simplest possible answer: Yes, always
         return True
 
-    # @property
-    # def is_staff(self):
-    #     "Is the user a member of staff?"
-    #     # Simplest possible answer: All admins are staff
-    #     return self.is_admin
+    @property
+    def is_staff(self):
+        "Is the user a member of staff?"
+        # Simplest possible answer: All admins are staff
+        return self.is_admin

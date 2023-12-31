@@ -1,12 +1,12 @@
 from django.http import HttpRequest
 from django.views import View
 from django.urls import reverse_lazy
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.views import PasswordChangeView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from reservations.models import Reservations
+from apps.reservations.models import Reservations
 from .forms import RegisterForm, LoginForm, EditProfileModelForm, CustomPasswordChangeForm
 from .models import User
 
@@ -77,7 +77,7 @@ class LoginView(View):
             if user is not None:
                 login(request, user)
                 messages.success(request, f"{user.full_name} عزیز خوش آمدید!")
-                return redirect(reverse('home'))
+                return redirect('home')
             else:
                 messages.error(request, 'کاربری با مشخصات وارد شده یافت نشد.')
 
