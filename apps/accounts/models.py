@@ -1,10 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .manager import UserManager
 from .validators import is_valid_phone_number
 
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(max_length=255)
     phone_number = models.CharField(
         validators=[is_valid_phone_number],
