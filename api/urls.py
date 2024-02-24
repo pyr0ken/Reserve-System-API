@@ -7,4 +7,5 @@ urlpatterns = [
     path('GetReservationWeek/<int:week_number>', views.GetReservationWeek.as_view(), name='GetReservationWeek'),
     path("GetReservationDetail/<str:reserve_date>/<str:reserve_time>/", views.GetReservationsDetail.as_view(),
          name="detail"),
+    path('GetSonsTime/', views.GetSonsTime.as_view(), name='GetSonsTime'),
 ]

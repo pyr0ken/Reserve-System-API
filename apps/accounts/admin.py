@@ -18,7 +18,7 @@ class UserAdmin(BaseUserAdmin):
     readonly_fields = ["date_joined", "last_login"]
     fieldsets = [
         ("Personal info", {"fields": ["full_name", "phone_number", "password"]}),
-        ("Permissions", {"fields": ["is_admin", "is_staff", "is_superuser"]}),
+        ("Permissions", {"fields": ["is_admin", "is_superuser"]}),
         ("Register & Login", {"fields": ["date_joined", "last_login"]}),
     ]
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin

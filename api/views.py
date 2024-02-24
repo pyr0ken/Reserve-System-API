@@ -3,10 +3,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound
 from rest_framework import status
-from .serializers import ReservationDateSerializer, ReservationDetailSerializer
+from .serializers import ReservationDateSerializer, ReservationDetailSerializer, SonsTimeSerializer
 from extensions.Timestep import TimeStep
 from apps.reservations.models import Reservations, SonsTimes
 from jalali_date import date2jalali
+import json
 
 shamsi = TimeStep()
 
@@ -29,6 +30,14 @@ class GetReservationWeek(APIView):
         reservations_dates_dict = [{'date': date2jalali(date)} for date in reservations_dates]
         serializer = ReservationDateSerializer(reservations_dates_dict, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GetSonsTime(APIView):
+    def get(self, request):
+        sons_times = SonsTimes.objects.all()
+        serializer = SonsTimeSerializer(sons_times, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 class GetReservationsDetail(APIView):
